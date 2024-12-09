@@ -1,0 +1,14 @@
+Pergunta: Qual é a capital do Brasil?
+Resposta: A capital do Brasil é Brasília.
+
+Pergunta: Quem é o autor de Dom Casmurro?
+Resposta: O autor de Dom Casmurro é Machado de Assis.
+
+Pergunta: Qual é a fórmula química da água?
+Resposta: A fórmula química da água é H2O.
+
+Pergunta: Qual é a velocidade da luz no vácuo?
+Resposta: A velocidade da luz no vácuo é aproximadamente 299.792.458 metros por segundo.
+
+Pergunta: O que é machine learning?
+Resposta: Machine learning é uma área da inteligência artificial que usa algoritmos e estatísticas para que os sistemas aprendam padrões a partir de dados.

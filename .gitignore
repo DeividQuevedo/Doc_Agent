@@ -1,0 +1,13 @@
+# Ignorar ambiente virtual
+env/
+myenv/
+*.venv
+venv_doc_agent/
+
+# Arquivos temporários do sistema
+*.pyc
+__pycache__/
+
+# Configurações locais
+*.env
+config.yaml
