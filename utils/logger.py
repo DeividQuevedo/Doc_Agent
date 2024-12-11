@@ -1,6 +1,5 @@
 import logging
 from utils.config import LOG_DIR
-
 def setup_logger(name):
     """
     Configura um logger básico.
@@ -14,3 +13,4 @@ def setup_logger(name):
 
     logger.addHandler(handler)
     return logger
+
