@@ -106,5 +106,7 @@ numpy==1.26.4
 tiktoken
 pydantic
 python-dotenv
+pypdf2==3.0.1
+python-docx==1.1.2         
 ```
 
