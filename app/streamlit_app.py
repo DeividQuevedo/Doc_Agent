@@ -6,10 +6,12 @@ print("PYTHONPATH:", sys.path)
 
 # Adiciona o diretório raiz do projeto ao PYTHONPATH
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
+sys.path.append(r'C:\Users\Deivid\Desktop\Agente\doc_agent\Lib\site-packages')
+
 print("Novo PYTHONPATH:", sys.path)
 
 import streamlit as st
-from langchain_config.document_loarder import load_documents
+from langchain_config.document_loader import load_documents
 from langchain_config.qa_pipline import create_pipeline
 
 

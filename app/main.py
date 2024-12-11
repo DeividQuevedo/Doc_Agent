@@ -8,7 +8,7 @@ print("PYTHONPATH:", sys.path)
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
 print("Novo PYTHONPATH:", sys.path)
 
-from langchain_config.document_loarder import load_documents
+from langchain_config.document_loader import load_documents
 from langchain_config.qa_pipline import create_pipeline
 
 def main():
