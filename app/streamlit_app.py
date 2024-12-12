@@ -2,6 +2,7 @@ import sys
 import os
 import streamlit as st
 from pathlib import Path
+import shutil
 
 # Ajustar o PYTHONPATH para importar os módulos
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
@@ -35,6 +36,10 @@ def save_uploaded_files(uploaded_files):
 
     return str(temp_dir)  # Retornar o caminho do diretório temporário
 
+# Função para limpar arquivos temporários
+def clear_temp_dir(temp_dir):
+    shutil.rmtree(temp_dir, ignore_errors=True)
+
 # Função para enviar a pergunta (chamado ao pressionar Enter)
 def handle_query():
     query = st.session_state["user_input"]
@@ -49,7 +54,7 @@ def handle_query():
             st.error(f"Erro ao processar a pergunta: {e}")
 
 # Divisão do layout principal em três colunas (25/50/25)
-col1, col2, col3 = st.columns([1, 2, 1], gap="large")  # Proporções ajustadas para 25%/50%/25%
+col1, col2, col3 = st.columns([1, 2, 1], gap="large")
 
 # Coluna da bandeja lateral esquerda
 with col1:
@@ -63,13 +68,12 @@ with col2:
     # Histórico de Conversas com barra de rolagem invisível
     st.markdown(
         """
-        <div style="height: 400px; overflow-y: auto; padding: 10px;">
+        <div style="height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ddd;">
         """,
         unsafe_allow_html=True,
     )
     if st.session_state["history"]:
         for user_msg, agent_msg in st.session_state["history"]:
-            # Mensagem do usuário (alinhada à direita)
             st.markdown(
                 f"""
                 <div style='background-color: #d1f7d6; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: right; width: 60%; margin-left: auto;'>
@@ -78,7 +82,6 @@ with col2:
                 """,
                 unsafe_allow_html=True,
             )
-            # Mensagem do agente (alinhada à esquerda)
             st.markdown(
                 f"""
                 <div style='background-color: #d1e7ff; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: left; width: 60%; margin-right: auto;'>
@@ -107,8 +110,9 @@ with col3:
     if uploaded_files:
         try:
             # Processar arquivos automaticamente
-            temp_dir = save_uploaded_files(uploaded_files)  # Salvar arquivos no diretório temporário
+            temp_dir = save_uploaded_files(uploaded_files)
             st.session_state["index"] = load_documents(temp_dir)  # Passar o diretório para `load_documents`
             st.success(f"{len(os.listdir(temp_dir))} documentos processados com sucesso!")
+            clear_temp_dir(temp_dir)  # Limpar os arquivos após o processamento
         except Exception as e:
             st.error(f"Erro ao processar os arquivos: {e}")
