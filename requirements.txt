@@ -1,3 +1,4 @@
+
 # Frameworks para Modelos de Linguagem
 langchain==0.3.1              # Framework para criação de pipelines baseados em LLMs
 langchain-community           # Versão comunitária com conectores adicionais
@@ -14,8 +15,8 @@ faiss-cpu                     # Ferramenta para indexação e busca vetorial oti
 
 # Utilitários e Simulações
 numpy==1.26.4                 # Biblioteca para cálculos vetoriais
-pypdf2==3.0.1                 # Biblioteca para tratamento de documentos em pdf
-python-docx==1.1.2            # Biblioteca para tratamento de documentos docx
+pypdf2 #==3.0.1                 # Biblioteca para tratamento de documentos em pdf
+python-docx #==1.1.2            # Biblioteca para tratamento de documentos docx
 
 # Tokenização e Tipagem
 tiktoken                      # Biblioteca para tokenização compatível com OpenAI
