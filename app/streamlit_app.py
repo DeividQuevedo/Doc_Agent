@@ -46,10 +46,10 @@ def handle_query():
     if query:
         try:
             pipeline = create_pipeline(st.session_state["index"])
-            response = pipeline.run({"query": query})
+            response = pipeline.invoke({"query": query})
             st.session_state["history"].append((query, response))  # Adicionar ao histórico
             st.session_state["user_input"] = ""  # Limpar o campo de entrada após envio
-            st.rerun()  # Atualizar a interface
+            #st.rerun()  # Atualizar a interface
         except Exception as e:
             st.error(f"Erro ao processar a pergunta: {e}")
 
