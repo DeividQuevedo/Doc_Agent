@@ -61,46 +61,72 @@ with col1:
     st.markdown("<h3 style='text-align: center;'>Opções</h3>", unsafe_allow_html=True)
     st.info("Espaço reservado para informações adicionais ou outras funcionalidades.")
 
-# Coluna principal do Chat (central)
+# Ajustando o layout principal
 with col2:
     st.markdown("<h3 style='text-align: center;'>Chat com o Agente</h3>", unsafe_allow_html=True)
 
-    # Histórico de Conversas com barra de rolagem invisível
-    st.markdown(
-        """
-        <div style="height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ddd;">
-        """,
-        unsafe_allow_html=True,
-    )
-    if st.session_state["history"]:
-        for user_msg, agent_msg in st.session_state["history"]:
-            st.markdown(
-                f"""
-                <div style='background-color: #d1f7d6; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: right; width: 60%; margin-left: auto;'>
-                    <strong>Você:</strong> {user_msg}
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                f"""
-                <div style='background-color: #d1e7ff; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: left; width: 60%; margin-right: auto;'>
-                    <strong>Agente:</strong> {agent_msg}
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-    else:
-        st.info("Nenhuma conversa disponível. Envie sua primeira pergunta.")
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Histórico de Conversas com barra de rolagem dentro de um contêiner
+    chat_container = st.container()
+
+    # Criando o histórico de mensagens
+    with chat_container:
+        if st.session_state["history"]:
+            for user_msg, agent_msg in st.session_state["history"]:
+                # Mensagem do usuário (alinhada à direita)
+                st.markdown(
+                    f"""
+                    <div style='background-color: #333333; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: right; color: #ffffff; width: 60%; margin-left: auto;'>
+                        <strong>Você:</strong> {user_msg}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                # Mensagem do agente (alinhada à esquerda)
+                st.markdown(
+                    f"""
+                    <div style='background-color: #444444; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: left; color: #ffffff; width: 60%; margin-right: auto;'>
+                        <strong>Agente:</strong> {agent_msg}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.info("Nenhuma conversa disponível. Envie sua primeira pergunta.")
 
     # Input do usuário abaixo do histórico
-    st.text_input(
+    user_input = st.text_input(
         "Digite sua pergunta:",
         value=st.session_state["user_input"],
         key="user_input",
         on_change=handle_query,  # Função chamada ao pressionar Enter
     )
+
+    # Processando a mensagem e adicionando ao histórico
+    if user_input:
+        # Adicionando mensagem do usuário
+        st.session_state["history"].append((user_input, None))
+        with chat_container:
+            st.markdown(
+                f"""
+                <div style='background-color: #333333; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: right; color: #ffffff; width: 60%; margin-left: auto;'>
+                    <strong>Você:</strong> {user_input}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        # Gerando resposta do agente
+        response = "Aqui está a resposta do agente."  # Substitua pela lógica do pipeline
+        st.session_state["history"][-1] = (user_input, response)  # Atualizando histórico com a resposta
+        with chat_container:
+            st.markdown(
+                f"""
+                <div style='background-color: #444444; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: left; color: #ffffff; width: 60%; margin-right: auto;'>
+                    <strong>Agente:</strong> {response}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
 
 # Coluna da bandeja lateral direita
 with col3:
