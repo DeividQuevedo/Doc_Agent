@@ -1,144 +1,104 @@
+import streamlit as st
 import sys
 import os
-import streamlit as st
 from pathlib import Path
 import shutil
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.messages import HumanMessage, AIMessage
 
-# Ajustar o PYTHONPATH para importar os módulos
+# Ajustar o PYTHONPATH
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
-
 from langchain_config.document_loader import load_documents
 from langchain_config.qa_pipline import create_pipeline
 
 # Configuração da página
-st.set_page_config(page_title="Agente de Documentos", layout="wide")
-st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title="Agente de Documentos", layout="centered")
 
-# Inicializar histórico, índice e input na sessão
-if "history" not in st.session_state:
-    st.session_state["history"] = []
+# Inicializar histórico de mensagens na sessão
+if "store" not in st.session_state:
+    st.session_state["store"] = {}
 
-if "index" not in st.session_state:
-    st.session_state["index"] = None
+def get_session_history(session_id: str) -> InMemoryChatMessageHistory:
+    """Obtém o histórico de mensagens para uma sessão específica."""
+    if session_id not in st.session_state["store"]:
+        st.session_state["store"][session_id] = InMemoryChatMessageHistory()
+    return st.session_state["store"][session_id]
 
-if "user_input" not in st.session_state:
-    st.session_state["user_input"] = ""  # Inicializar o estado do input do usuário
+# Criar o histórico para esta sessão
+session_id = "default_session"
+history = get_session_history(session_id)
 
-# Função para salvar arquivos no diretório temporário
+# Funções auxiliares
 def save_uploaded_files(uploaded_files):
     temp_dir = Path("temp_files")
-    temp_dir.mkdir(exist_ok=True)  # Criar o diretório temporário, se não existir
-
+    temp_dir.mkdir(exist_ok=True)
     for uploaded_file in uploaded_files:
         temp_file_path = temp_dir / uploaded_file.name
         with open(temp_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
+    return str(temp_dir)
 
-    return str(temp_dir)  # Retornar o caminho do diretório temporário
-
-# Função para limpar arquivos temporários
 def clear_temp_dir(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 
-# Função para enviar a pergunta (chamado ao pressionar Enter)
-def handle_query():
-    query = st.session_state["user_input"]
-    if query:
-        try:
-            pipeline = create_pipeline(st.session_state["index"])
-            response = pipeline.invoke({"query": query})
-            st.session_state["history"].append((query, response))  # Adicionar ao histórico
-            st.session_state["user_input"] = ""  # Limpar o campo de entrada após envio
-            #st.rerun()  # Atualizar a interface
-        except Exception as e:
-            st.error(f"Erro ao processar a pergunta: {e}")
+def main():
+    # Divisão da página em 3 colunas para centralizar o conteúdo
+    col1, col2, col3 = st.columns([1, 5, 1])  # Ajuste para a proporção desejada
 
-# Divisão do layout principal em três colunas (25/50/25)
-col1, col2, col3 = st.columns([1, 2, 1], gap="large")
+    container = st.container()  # Conteúdo principal na coluna central
+    st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
 
-# Coluna da bandeja lateral esquerda
-with col1:
-    st.markdown("<h3 style='text-align: center;'>Opções</h3>", unsafe_allow_html=True)
-    st.info("Espaço reservado para informações adicionais ou outras funcionalidades.")
 
-# Ajustando o layout principal
-with col2:
-    st.markdown("<h3 style='text-align: center;'>Chat com o Agente</h3>", unsafe_allow_html=True)
+    # Histórico de chat
+    st.write("### Histórico de Chat")
+    for message in history.messages:
+        if isinstance(message, HumanMessage):
+            with st.chat_message("user"):
+                st.markdown(message.content)
+        elif isinstance(message, AIMessage):
+            with st.chat_message("assistant"):
+                st.markdown(message.content)
 
-    # Histórico de Conversas com barra de rolagem dentro de um contêiner
-    chat_container = st.container()
+    # Campo de entrada do usuário
+    user_input = st.chat_input("Digite sua pergunta:")
 
-    # Criando o histórico de mensagens
-    with chat_container:
-        if st.session_state["history"]:
-            for user_msg, agent_msg in st.session_state["history"]:
-                # Mensagem do usuário (alinhada à direita)
-                st.markdown(
-                    f"""
-                    <div style='background-color: #333333; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: right; color: #ffffff; width: 60%; margin-left: auto;'>
-                        <strong>Você:</strong> {user_msg}
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-                # Mensagem do agente (alinhada à esquerda)
-                st.markdown(
-                    f"""
-                    <div style='background-color: #444444; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: left; color: #ffffff; width: 60%; margin-right: auto;'>
-                        <strong>Agente:</strong> {agent_msg}
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-        else:
-            st.info("Nenhuma conversa disponível. Envie sua primeira pergunta.")
-
-    # Input do usuário abaixo do histórico
-    user_input = st.text_input(
-        "Digite sua pergunta:",
-        value=st.session_state["user_input"],
-        key="user_input",
-        on_change=handle_query,  # Função chamada ao pressionar Enter
-    )
-
-    # Processando a mensagem e adicionando ao histórico
     if user_input:
-        # Adicionando mensagem do usuário
-        st.session_state["history"].append((user_input, None))
-        with chat_container:
-            st.markdown(
-                f"""
-                <div style='background-color: #333333; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: right; color: #ffffff; width: 60%; margin-left: auto;'>
-                    <strong>Você:</strong> {user_input}
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        # Gerando resposta do agente
-        response = "Aqui está a resposta do agente."  # Substitua pela lógica do pipeline
-        st.session_state["history"][-1] = (user_input, response)  # Atualizando histórico com a resposta
-        with chat_container:
-            st.markdown(
-                f"""
-                <div style='background-color: #444444; padding: 10px; margin: 10px 0; border-radius: 10px; text-align: left; color: #ffffff; width: 60%; margin-right: auto;'>
-                    <strong>Agente:</strong> {response}
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        # Adicionar mensagem do usuário ao histórico
+        history.add_message(HumanMessage(content=user_input))
+        with st.chat_message("user"):
+            st.markdown(user_input)
 
+        try:
+            # Criar resposta do agente
+            pipeline = create_pipeline(st.session_state.get("index"))
+            response = pipeline.invoke({"query": user_input})
 
-# Coluna da bandeja lateral direita
-with col3:
-    st.markdown("<h3 style='text-align: center;'>Configuração dos Documentos</h3>", unsafe_allow_html=True)
+            # Garantir que a resposta seja string
+            response_content = response if isinstance(response, str) else str(response)
+
+            # Adicionar resposta ao histórico
+            history.add_message(AIMessage(content=response_content))
+            with st.chat_message("assistant"):
+                st.markdown(response_content)
+        except Exception as e:
+            st.error(f"Erro ao processar a mensagem: {e}")
+    
+    # Upload de documentos
     uploaded_files = st.file_uploader("Envie seus arquivos:", type=["txt", "pdf", "docx"], accept_multiple_files=True)
 
     if uploaded_files:
         try:
-            # Processar arquivos automaticamente
             temp_dir = save_uploaded_files(uploaded_files)
-            st.session_state["index"] = load_documents(temp_dir)  # Passar o diretório para `load_documents`
-            st.success(f"{len(os.listdir(temp_dir))} documentos processados com sucesso!")
-            clear_temp_dir(temp_dir)  # Limpar os arquivos após o processamento
+            st.session_state["index"] = load_documents(temp_dir)
+            st.success("Documentos processados com sucesso!")
+            clear_temp_dir(temp_dir)
         except Exception as e:
             st.error(f"Erro ao processar os arquivos: {e}")
+
+
+def build_page(is_authenticated: bool):
+    if is_authenticated:
+        main()
+ 
+if __name__ == "__main__":
+    main()
