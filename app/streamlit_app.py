@@ -42,11 +42,43 @@ def clear_temp_dir(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 
 def main():
+
+    st.markdown(
+        """
+        <style>
+        /* Header fixo */
+        .fixed-header {
+            position: fixed;
+            height: 120px; /* Altura do header fixo */
+            top: 0;
+            left: 0;
+            width: 100%;
+            
+            z-index: 1000;
+            text-align: center;
+            padding: 40px 0;
+            font-size: 50px;
+            font-weight: bold;
+            color: white;
+        }
+        .spacer {
+            margin-top: 70px; /* Compensa a altura do header fixo */
+        }
+        </style>
+        <div class="fixed-header">Agente de Documentos</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Espaço para evitar sobreposição com o Header
+    st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
+
+
     # Divisão da página em 3 colunas para centralizar o conteúdo
     col1, col2, col3 = st.columns([1, 5, 1])  # Ajuste para a proporção desejada
 
     container = st.container()  # Conteúdo principal na coluna central
-    st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
+    # st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
 
 
     # Histórico de chat
