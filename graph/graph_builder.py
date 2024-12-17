@@ -11,6 +11,9 @@ class GraphBuilder:
         graph.add_node(Node(name="Load Document", func=DocumentLoader.load))
         graph.add_node(Node(name="Split Text", func=TextSplitter.split))
         graph.add_node(Node(name="Create Vector Store", func=VectorStore.create))
+
+
+        
         graph.add_node(Node(name="QA Pipeline", func=QAPipeline.build))
         
         graph.add_edge("Load Document", "Split Text")
