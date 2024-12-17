@@ -41,6 +41,36 @@ def save_uploaded_files(uploaded_files):
 def clear_temp_dir(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 
+# CSS personalizado para o header fixo
+st.markdown(
+    """
+    <style>
+    .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 15%;
+        background-color: #0E1117;
+        text-align: center;
+        font-size: 30px;
+        font-weight: bold;
+        padding: 40px 0;
+        z-index: 1000;
+        color: white;
+    }
+    .spacer {
+        margin-top: 80px; /* Compensa a altura do header */
+    }
+    </style>
+    <div class="fixed-header">Agente de Documentos</div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Espaço abaixo do header fixo
+st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
+
 # Sidebar para upload de documentos
 with st.sidebar:
     st.subheader("Upload de Documentos")
@@ -58,10 +88,9 @@ with st.sidebar:
             st.error(f"Erro ao processar os arquivos: {e}")
 
 # Layout principal
-st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
+#st.markdown("<h2 style='text-align: center;'>Histórico de Chat</h2>", unsafe_allow_html=True)
 
 # Histórico de chat
-st.write("### Histórico de Chat")
 for message in history.messages:
     if isinstance(message, HumanMessage):
         with st.chat_message("user"):
@@ -86,6 +115,10 @@ if user_input:
 
         # Garantir que a resposta seja string
         response_content = response if isinstance(response, str) else str(response)
+
+        # Extrair apenas o conteúdo após 'result: '
+        if "result" in response_content:
+            response_content = response_content.split("'result':")[1].strip(" {}'")
 
         # Adicionar resposta ao histórico
         history.add_message(AIMessage(content=response_content))
