@@ -1,8 +1,8 @@
-import streamlit as st
 import sys
 import os
-from pathlib import Path
 import shutil
+import streamlit as st
+from pathlib import Path
 from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_core.messages import HumanMessage, AIMessage
 
@@ -41,82 +41,12 @@ def save_uploaded_files(uploaded_files):
 def clear_temp_dir(temp_dir):
     shutil.rmtree(temp_dir, ignore_errors=True)
 
-def main():
-
-    st.markdown(
-        """
-        <style>
-        /* Header fixo */
-        .fixed-header {
-            position: fixed;
-            height: 120px; /* Altura do header fixo */
-            top: 0;
-            left: 0;
-            width: 100%;
-            
-            z-index: 1000;
-            text-align: center;
-            padding: 40px 0;
-            font-size: 50px;
-            font-weight: bold;
-            color: white;
-        }
-        .spacer {
-            margin-top: 70px; /* Compensa a altura do header fixo */
-        }
-        </style>
-        <div class="fixed-header">Agente de Documentos</div>
-        """,
-        unsafe_allow_html=True,
+# Sidebar para upload de documentos
+with st.sidebar:
+    st.subheader("Upload de Documentos")
+    uploaded_files = st.file_uploader(
+        "Envie seus arquivos:", type=["txt", "pdf", "docx"], accept_multiple_files=True
     )
-
-    # Espaço para evitar sobreposição com o Header
-    st.markdown('<div class="spacer"></div>', unsafe_allow_html=True)
-
-
-    # Divisão da página em 3 colunas para centralizar o conteúdo
-    col1, col2, col3 = st.columns([1, 5, 1])  # Ajuste para a proporção desejada
-
-    container = st.container()  # Conteúdo principal na coluna central
-    # st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
-
-
-    # Histórico de chat
-    st.write("### Histórico de Chat")
-    for message in history.messages:
-        if isinstance(message, HumanMessage):
-            with st.chat_message("user"):
-                st.markdown(message.content)
-        elif isinstance(message, AIMessage):
-            with st.chat_message("assistant"):
-                st.markdown(message.content)
-
-    # Campo de entrada do usuário
-    user_input = st.chat_input("Digite sua pergunta:")
-
-    if user_input:
-        # Adicionar mensagem do usuário ao histórico
-        history.add_message(HumanMessage(content=user_input))
-        with st.chat_message("user"):
-            st.markdown(user_input)
-
-        try:
-            # Criar resposta do agente
-            pipeline = create_pipeline(st.session_state.get("index"))
-            response = pipeline.invoke({"query": user_input})
-
-            # Garantir que a resposta seja string
-            response_content = response if isinstance(response, str) else str(response)
-
-            # Adicionar resposta ao histórico
-            history.add_message(AIMessage(content=response_content))
-            with st.chat_message("assistant"):
-                st.markdown(response_content)
-        except Exception as e:
-            st.error(f"Erro ao processar a mensagem: {e}")
-    
-    # Upload de documentos
-    uploaded_files = st.file_uploader("Envie seus arquivos:", type=["txt", "pdf", "docx"], accept_multiple_files=True)
 
     if uploaded_files:
         try:
@@ -127,10 +57,39 @@ def main():
         except Exception as e:
             st.error(f"Erro ao processar os arquivos: {e}")
 
+# Layout principal
+st.markdown("<h1 style='text-align: center;'>Agente de Documentos</h1>", unsafe_allow_html=True)
 
-def build_page(is_authenticated: bool):
-    if is_authenticated:
-        main()
- 
-if __name__ == "__main__":
-    main()
+# Histórico de chat
+st.write("### Histórico de Chat")
+for message in history.messages:
+    if isinstance(message, HumanMessage):
+        with st.chat_message("user"):
+            st.markdown(message.content)
+    elif isinstance(message, AIMessage):
+        with st.chat_message("assistant"):
+            st.markdown(message.content)
+
+# Entrada do usuário
+user_input = st.chat_input("Digite sua pergunta:")
+
+if user_input:
+    # Adicionar mensagem do usuário ao histórico
+    history.add_message(HumanMessage(content=user_input))
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    try:
+        # Criar resposta do agente
+        pipeline = create_pipeline(st.session_state.get("index"))
+        response = pipeline.invoke({"query": user_input})
+
+        # Garantir que a resposta seja string
+        response_content = response if isinstance(response, str) else str(response)
+
+        # Adicionar resposta ao histórico
+        history.add_message(AIMessage(content=response_content))
+        with st.chat_message("assistant"):
+            st.markdown(response_content)
+    except Exception as e:
+        st.error(f"Erro ao processar a mensagem: {e}")
