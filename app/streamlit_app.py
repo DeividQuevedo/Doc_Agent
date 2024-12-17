@@ -51,13 +51,27 @@ st.markdown(
         left: 0;
         width: 100%;
         height: 15%;
-        background-color: #0E1117;
+        background-color: var(--background-color);
         text-align: center;
         font-size: 30px;
         font-weight: bold;
         padding: 40px 0;
         z-index: 1000;
-        color: white;
+        color: var(--text-color);
+    }
+
+    /* Configuração padrão (tema claro) */
+    :root {
+        --background-color: #ffffff; /* Branco */
+        --text-color: #000000; /* Preto */
+    }
+
+    /* Configuração para tema escuro */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --background-color: #0E1117; /* Preto */
+            --text-color: #ffffff; /* Branco */
+        }
     }
     .spacer {
         margin-top: 80px; /* Compensa a altura do header */
